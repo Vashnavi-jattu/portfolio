@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Portfolio</title>
+    <!-- Fallback for Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      // Check if Tailwind loaded successfully
+      if (typeof tailwind === "undefined") {
+        console.error("Tailwind CSS failed to load");
+        // You could load a local fallback here
+      } else {
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: "#6366f1",
+                secondary: "#4f46e5",
+              },
+              borderRadius: {
+                none: "0px",
+                sm: "4px",
+                DEFAULT: "8px",
+                md: "12px",
+                lg: "16px",
+                xl: "20px",
+                "2xl": "24px",
+                "3xl": "32px",
+                full: "9999px",
+                button: "8px",
+              },
+            },
+          },
+        };
+      }
+    </script>
+
+    <!-- Font Preload with fallbacks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icon library with fallback -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <noscript>
+      <style>
+        /* Fallback for when JavaScript is disabled */
+        .ri-icon::before {
+          display: none;
+        }
+      </style>
+    </noscript>
+
+    <style>
+      /* Font fallbacks */
+      body {
+        font-family: "Exo 2", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background-color: #050a18;
+        color: #e2e8f0;
+        overflow-x: hidden;
+      }
+
+      .game-title {
+        font-family: "Orbitron", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      /* Icon fallback */
+      :where([class^="ri-"])::before {
+        content: "\f3c2";
+        font-family: "remixicon" !important;
+      }
+
+      /* Ensure elements are visible even if JavaScript fails */
+      .js-dependent {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+
+      .js-enabled .js-dependent {
+        opacity: 1;
+      }
+
+      /* Loading screen styles */
+      #loading-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #050a18;
+        transition: opacity 1s ease;
+      }
+
+      /* Mobile menu styles */
+      #mobile-menu {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background-color: rgba(5, 10, 24, 0.95);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+      }
+
+      /* Other existing styles... */
+      .nav-item {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .nav-item::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #6366f1;
+        transition: width 0.3s ease;
+      }
+
+      .nav-item:hover::before {
+        width: 100%;
+      }
+
+      .glow {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+      }
+
+      .glow-text {
+        text-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+      }
+
+      .quest-card {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 41, 59, 0.8),
+          rgba(15, 23, 42, 0.9)
+        );
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .quest-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+      }
+
+      .project-card {
+        perspective: 1000px;
+        transition: transform 0.6s;
+      }
+
+      .project-card:hover .project-card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .project-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+      }
+
+      .project-card-front,
+      .project-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+      }
+
+      .project-card-back {
+        transform: rotateY(180deg);
+      }
+
+      .skill-node {
+        transition: all 0.3s ease;
+      }
+
+      .skill-node:hover {
+        transform: scale(1.1);
+      }
+
+      .edu-node {
+        position: relative;
+      }
+
+      .edu-node::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        width: 2px;
+        height: 30px;
+        background: linear-gradient(to bottom, #6366f1, transparent);
+      }
+
+      .edu-node:last-child::after {
+        display: none;
+      }
+
+      .terminal-input {
+        background-color: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(99, 102, 241, 0.5);
+        color: #e2e8f0;
+        caret-color: #6366f1;
+      }
+
+      .terminal-input:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+      }
+
+      .custom-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(99, 102, 241, 0.5);
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .custom-checkbox:checked {
+        background-color: #6366f1;
+      }
+
+      .custom-checkbox:checked::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 7px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      .custom-range {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        background: rgba(30, 41, 59, 0.8);
+        border-radius: 5px;
+        outline: none;
+      }
+
+      .custom-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #6366f1;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+      }
+
+      .custom-range::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #6366f1;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+      }
+
+      .custom-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+
+      .custom-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .switch-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(30, 41, 59, 0.8);
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+
+      .switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .switch-slider {
+        background-color: #6366f1;
+      }
+
+      input:checked + .switch-slider:before {
+        transform: translateX(26px);
+      }
+
+      .loading-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(30, 41, 59, 0.8);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .loading-bar::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #6366f1, #4f46e5);
+        animation: loading 3s ease-in-out forwards;
+      }
+
+      @keyframes loading {
+        0% {
+          width: 0;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      .floating {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+        }
+      }
+
+      .typewriter {
+        overflow: hidden;
+        border-right: 2px solid #6366f1;
+        white-space: nowrap;
+        margin: 0 auto;
+        animation: typing 3.5s steps(40, end),
+          blink-caret 0.75s step-end infinite;
+      }
+
+      @keyframes typing {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      @keyframes blink-caret {
+        from,
+        to {
+          border-color: transparent;
+        }
+        50% {
+          border-color: #6366f1;
+        }
+      }
+
+      .particle {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background-color: rgba(99, 102, 241, 0.7);
+        border-radius: 50%;
+        animation: particle-float 15s infinite linear;
+      }
+
+      @keyframes particle-float {
+        0% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        100% {
+          transform: translate(100px, -100px) rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="js-enabled">
+    <!-- Loading Screen -->
+    <div
+      id="loading-screen"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050a18] transition-opacity duration-1000"
+    >
+      <h1 class="game-title text-4xl md:text-6xl text-white mb-8 glow-text">
+        PORTFOLIO QUEST
+      </h1>
+      <div class="w-64 md:w-96 loading-bar mb-4"></div>
+      <p class="text-sm md:text-base text-gray-400">
+        Loading world assets... <span id="loading-progress">0</span>%
+      </p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen flex flex-col js-dependent">
+      <!-- Navigation -->
+      <header class="fixed top-0 left-0 right-0 z-40 bg-opacity-80 backdrop-blur-md bg-[#050a18] border-b border-indigo-900/30">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex justify-between items-center">
+            <a href="#home" class="game-title text-2xl md:text-3xl font-bold text-white glow-text">PORTFOLIO<span class="text-primary">QUEST</span></a>
+            
+            <div class="hidden md:flex space-x-8 items-center">
+              <a href="#home" class="nav-item text-gray-300 hover:text-white transition-colors">Home</a>
+              <a href="#about" class="nav-item text-gray-300 hover:text-white transition-colors">About</a>
+              <a href="#work" class="nav-item text-gray-300 hover:text-white transition-colors">Work</a>
+              <a href="#projects" class="nav-item text-gray-300 hover:text-white transition-colors">Projects</a>
+              <a href="#skills" class="nav-item text-gray-300 hover:text-white transition-colors">Skills</a>
+              <a href="#education" class="nav-item text-gray-300 hover:text-white transition-colors">Education</a>
+              <a href="#contact" class="nav-item text-gray-300 hover:text-white transition-colors">Contact</a>
+            </div>
+            
+            <button id="mobile-menu-button" class="md:hidden w-10 h-10 flex items-center justify-center text-white">
+              <i class="ri-menu-line ri-lg"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="fixed inset-0 z-30 bg-[#050a18] bg-opacity-95 transform translate-x-full transition-transform duration-300 md:hidden">
+        <div class="flex flex-col h-full pt-20 px-8">
+          <a href="#home" class="py-4 text-xl text-gray-300 hover:text-white border-b border-indigo-900/30">Home</a>
+          <a href="#about" class="py-4 text-xl text-gray-300 hover:text-white border-b border-indigo-900/30">About</a>
+          <a href="#work" class="py-4 text-xl text-gray-300 hover:text-white border-b border-indigo-900/30">Work</a>
+          <a href="#projects" class="py-4 text-xl text-gray-300 hover:text-white border-b border-indigo-900/30">Projects</a>
+          <a href="#skills" class="py-4 text-xl text-gray-300 hover:text-white border-b border-indigo-900/30">Skills</a>
+          <a href="#education" class="py-4 text-xl text-gray-300 hover:text-white border-b border-indigo-900/30">Education</a>
+          <a href="#contact" class="py-4 text-xl text-gray-300 hover:text-white">Contact</a>
+        </div>
+      </div>
+
+      <!-- Home Section -->
+    <section id="home" class="min-h-screen pt-20 relative overflow-hidden">
+    <!-- 3D Background Container -->
+    <div class="absolute inset-0 z-0 perspective-1000">
+        <!-- 3D Background Layer with Depth -->
+        <div class="absolute inset-0 transform-style-preserve-3d">
+        <!-- Far Background (Nebula) -->
+        <div style="background-image: url('https://readdy.ai/api/search-image?query=futuristic%20digital%20landscape%20with%20floating%20islands%2C%20glowing%20energy%20paths%20connecting%20them%2C%20nebula%20in%20background%2C%20sci-fi%20environment%2C%20digital%20art%2C%20game-like%203D%20environment%20with%20neon%20lights%20and%20energy%20particles%2C%20dark%20blue%20and%20purple%20color%20scheme&width=1920&height=1080&seq=home-bg&orientation=landscape');" 
+            class="absolute inset-0 bg-cover bg-center opacity-40 transform translateZ-0"></div>
+        
+        <!-- Mid Background (Floating Islands) -->
+        <div class="absolute inset-0 transform translateZ-10">
+            <div class="floating-islands"></div>
+        </div>
+        
+        <!-- Foreground Particles -->
+        <div id="particles" class="absolute inset-0 transform translateZ-20"></div>
+        
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-[#050a18]/70 via-transparent to-[#050a18] transform translateZ-5"></div>
+        </div>
+    </div>
+    
+    <!-- 3D Content Container -->
+    <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none transform-style-preserve-3d">
+        <div class="text-center max-w-3xl mx-auto transform translateZ-50 hover:rotate-y-6 transition-transform duration-500 pointer-events-auto">
+            <h1 class="game-title text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 glow-text transform translateZ-30">
+            WELCOME TO SAI'S PORTFOLIOQUEST
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-10 transform translateZ-20">
+            Embark on a journey through my professional universe
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 md:gap-6 transform translateZ-40">
+            <a href="#about" class="px-6 py-3 bg-primary hover:bg-indigo-700 text-white font-medium rounded-button transition-all duration-300 glow whitespace-nowrap transform hover:translateZ-10 hover:scale-105">
+                <i class="ri-gamepad-line mr-2"></i> Start Adventure
+            </a>
+            <a href="#contact" class="px-6 py-3 bg-transparent hover:bg-white/10 text-white font-medium border border-primary rounded-button transition-all duration-300 whitespace-nowrap transform hover:translateZ-10 hover:scale-105">
+                <i class="ri-message-3-line mr-2"></i> Contact Me
+            </a>
+            </div>
+        </div>
+    </div>
+    </section>
+
+
+      <!-- About Section -->
+      <section id="about" class="min-h-screen py-20 relative">
+        <div class="absolute inset-0 z-0">
+          <img src="C:\Users\hp\Desktop\Hackathon\main.jpg" alt="ExposHER App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-b from-[#050a18] via-[#050a18]/80 to-[#050a18]"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10 pt-16">
+          <div class="text-center mb-16">
+            <h2 class="game-title text-3xl md:text-5xl font-bold text-white mb-4 glow-text">CHARACTER PROFILE</h2>
+            <p class="text-gray-400 max-w-2xl mx-auto">Learn about the protagonist of this adventure</p>
+          </div>
+          
+          <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+            <div class="w-full md:w-2/5 lg:w-1/3">
+              <div class="relative">
+                <div class="aspect-square rounded-xl overflow-hidden border-2 border-indigo-500/50 glow">
+                  <img src="C:\Users\hp\Desktop\Hackathon\main.jpg" alt="ExposHER App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+                
+                <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-indigo-900/90 backdrop-blur-sm px-4 py-2 rounded-full border border-indigo-500/50 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full pulse"></div>
+                    <span class="game-title text-white text-sm">LEVEL 30 DEVELOPER</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-12 bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6">
+                <h3 class="game-title text-xl text-white mb-4">CHARACTER STATS</h3>
+                
+                <div class="space-y-4">
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span class="text-gray-300">Algorithm Design</span>
+                      <span class="text-primary">85/100</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 85%"></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span class="text-gray-300">System Architecture</span>
+                      <span class="text-primary">92/100</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 92%"></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span class="text-gray-300">Debugging</span>
+                      <span class="text-primary">88/100</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 88%"></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span class="text-gray-300">Research Skills</span>
+                      <span class="text-primary">90/100</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 90%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="w-full md:w-3/5 lg:w-2/3">
+              <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                  <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-chat-3-line ri-lg"></i>
+                  </div>
+                  <h3 class="game-title text-xl text-white">DIALOGUE</h3>
+                </div>
+                
+                <div class="space-y-6">
+                  
+                  <div class="p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30">
+                    <p class="text-gray-300">Greetings, visitor! Welcome to my interactive portfolio showcasing my journey in technology and research.</p>
+                    </div>
+
+                    <div class="p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30">
+                    <p class="text-gray-300">My passion lies at the intersection of AI innovation and practical application. With expertise in machine learning models (CNNs, Transformers, GANs) and full-stack development (Python, React, Django), I bridge theoretical concepts with real-world solutions.</p>
+                    </div>
+
+                    <div class="p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30">
+                    <p class="text-gray-300">Currently researching mobile AI applications at UAlberta while leading computing science student initiatives. My projects range from bias mitigation in facial recognition to developing safety-focused applications that have won hackathon awards.</p>
+                    </div>
+
+                    <div class="p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30">
+                    <p class="text-gray-300">When not coding, I contribute to Women in Cybersecurity (WiCyS), analyze AI research papers, or mentor students as a Teaching Assistant. I believe in using technology to create equitable, impactful solutions that serve diverse communities.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                  <h4 class="game-title text-lg text-white mb-4">DIALOGUE OPTIONS</h4>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="#work" class="px-4 py-3 bg-indigo-900/40 hover:bg-indigo-900/60 text-white rounded-lg border border-indigo-500/30 transition-all duration-300 text-center whitespace-nowrap">
+                      Tell me about your work experience
+                    </a>
+                    <a href="#projects" class="px-4 py-3 bg-indigo-900/40 hover:bg-indigo-900/60 text-white rounded-lg border border-indigo-500/30 transition-all duration-300 text-center whitespace-nowrap">
+                      Show me your projects
+                    </a>
+                    <a href="#skills" class="px-4 py-3 bg-indigo-900/40 hover:bg-indigo-900/60 text-white rounded-lg border border-indigo-500/30 transition-all duration-300 text-center whitespace-nowrap">
+                      What skills do you have?
+                    </a>
+                    <a href="#contact" class="px-4 py-3 bg-indigo-900/40 hover:bg-indigo-900/60 text-white rounded-lg border border-indigo-500/30 transition-all duration-300 text-center whitespace-nowrap">
+                      I'd like to contact you
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+     <!-- Work Experience Section -->
+<section id="work" class="min-h-screen py-20 relative">
+  <div class="absolute inset-0 z-0">
+    <div style="background-image: url('https://readdy.ai/api/search-image?query=futuristic%20quest%20board%20or%20mission%20control%20room%2C%20sci-fi%20interface%20with%20holographic%20displays%20showing%20mission%20details%2C%20dark%20blue%20and%20purple%20color%20scheme%2C%20glowing%20neon%20elements%2C%20high-tech%20environment%20with%20data%20visualization%2C%20game-like%20mission%20selection%20screen&width=1920&height=1080&seq=work-bg&orientation=landscape');" class="absolute inset-0 bg-cover bg-center opacity-20"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#050a18] via-[#050a18]/80 to-[#050a18]"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10 pt-16 max-w-5xl">
+    <div class="text-center mb-16">
+      <h2 class="game-title text-3xl md:text-5xl font-bold text-white mb-4 glow-text">COMPLETED QUESTS</h2>
+      <p class="text-gray-400 max-w-2xl mx-auto">A chronicle of professional missions and achievements</p>
+    </div>
+    
+    <div class="relative">
+      <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-indigo-900/50 transform -translate-x-1/2 hidden md:block"></div>
+      
+      <div class="space-y-12 md:space-y-0">
+        <!-- Research Assistant -->
+<div class="flex flex-col md:flex-row items-start md:items-center">
+  <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1">
+    <div class="quest-card p-6 rounded-xl">
+      <div class="flex items-center justify-end mb-4">
+        <span class="game-title text-white text-lg mr-3">RESEARCH ASSISTANT</span>
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+          <i class="ri-microscope-line ri-lg"></i>
+        </div>
+      </div>
+      
+      <h3 class="text-xl text-white mb-2">University of Alberta</h3>
+      <p class="text-gray-400 mb-4">May 2024 - Present</p>
+      
+      <ul class="text-gray-300 space-y-2 list-disc pl-5">
+        <li>Built a cross-platform <span class="text-indigo-300">mobile app</span> enabling users to upload step test images to generate optimal control tuning parameters</li>
+        <li>Developed the <span class="text-indigo-300">frontend</span> using <span class="text-indigo-300">React Native and Expo</span>, allowing real-time image capture and upload from mobile devices</li>
+        <li>Implemented the <span class="text-indigo-300">backend with Python and Django</span> to process image data and compute controller settings</li>
+      </ul>
+      
+      <div class="mt-4 flex flex-wrap gap-2 justify-end">
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">React Native</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Django</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Mobile Development</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+    <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+  </div>
+  
+  <div class="md:w-1/2 md:pl-12 order-3">
+    <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+      <div class="flex items-center mb-2">
+        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-2">
+          <i class="ri-award-line ri-sm"></i>
+        </div>
+        <h4 class="game-title text-white">ACHIEVEMENTS</h4>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Developed full-stack mobile solution for engineering research</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Bridged mobile development with control systems engineering</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Created efficient image processing pipeline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+        <!-- City of Edmonton -->
+        <div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+          <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1">
+            <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+              <div class="flex items-center justify-end mb-2">
+                <h4 class="game-title text-white mr-2">ACHIEVEMENTS</h4>
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                  <i class="ri-award-line ri-sm"></i>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex items-center justify-end">
+                  <span class="text-gray-300 text-sm">Automated training processes saving 100+ hours</span>
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white ml-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                </div>
+                <div class="flex items-center justify-end">
+                  <span class="text-gray-300 text-sm">Developed data visualization dashboards</span>
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white ml-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+            <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+          </div>
+          
+          <div class="md:w-1/2 md:pl-12 order-3">
+            <div class="quest-card p-6 rounded-xl">
+              <div class="flex items-center mb-4">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-government-line ri-lg"></i>
+                </div>
+                <span class="game-title text-white text-lg">SOFTWARE ENGINEERING INTERN</span>
+              </div>
+              
+              <h3 class="text-xl text-white mb-2">City of Edmonton - Waste Services</h3>
+              <p class="text-gray-400 mb-4">Sep 2024 - Apr 2025 (8 months) · Hybrid</p>
+              
+              <ul class="text-gray-300 space-y-2 list-disc pl-5">
+                <li>Developed automation tools using Google Workspace, JavaScript, and Python</li>
+                <li>Created manuals and SOPs for automation processes</li>
+                <li>Built apps and forms for data analytics and visualization</li>
+                <li>Supported migration of training materials to new LMS system</li>
+              </ul>
+              
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">JavaScript</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Google Apps Script</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Data Visualization</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Teaching Assistant -->
+        <div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+          <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1">
+            <div class="quest-card p-6 rounded-xl">
+              <div class="flex items-center justify-end mb-4">
+                <span class="game-title text-white text-lg mr-3">TEACHING ASSISTANT</span>
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                  <i class="ri-book-open-line ri-lg"></i>
+                </div>
+              </div>
+              
+              <h3 class="text-xl text-white mb-2">University of Alberta</h3>
+              <p class="text-gray-400 mb-4">Sep 2024 - Apr 2025 (8 months) · On-site</p>
+              
+              <ul class="text-gray-300 space-y-2 list-disc pl-5">
+                <li>TA for CMPUT 174: Introduction to Foundations of Computation I</li>
+                <li>TA for CMPUT 229: Computer Organization and Architecture I</li>
+                <li>Conducted lab sessions and provided student support</li>
+                <li>Graded assignments and provided constructive feedback</li>
+                <li>Assisted students with Python programming concepts</li>
+              </ul>
+              
+              <div class="mt-4 flex flex-wrap gap-2 justify-end">
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Teaching</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Computer Science</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+            <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+          </div>
+          
+          <div class="md:w-1/2 md:pl-12 order-3">
+            <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+              <div class="flex items-center mb-2">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-2">
+                  <i class="ri-award-line ri-sm"></i>
+                </div>
+                <h4 class="game-title text-white">ACHIEVEMENTS</h4>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex items-center">
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                  <span class="text-gray-300 text-sm">Helped students master Python fundamentals</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                  <span class="text-gray-300 text-sm">Received excellent student feedback</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- VP External -->
+        <div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+          <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1">
+            <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+              <div class="flex items-center justify-end mb-2">
+                <h4 class="game-title text-white mr-2">ACHIEVEMENTS</h4>
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                  <i class="ri-award-line ri-sm"></i>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex items-center justify-end">
+                  <span class="text-gray-300 text-sm">Organized successful tech events</span>
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white ml-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                </div>
+                <div class="flex items-center justify-end">
+                  <span class="text-gray-300 text-sm">Increased student engagement</span>
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white ml-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+            <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+          </div>
+          
+          <div class="md:w-1/2 md:pl-12 order-3">
+            <div class="quest-card p-6 rounded-xl">
+              <div class="flex items-center mb-4">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-team-line ri-lg"></i>
+                </div>
+                <span class="game-title text-white text-lg">VICE PRESIDENT EXTERNAL & SECRETARY</span>
+              </div>
+              
+              <h3 class="text-xl text-white mb-2">Undergraduate Association of Computing Science & WiCyS UAlberta</h3>
+              <p class="text-gray-400 mb-4">May 2024 - Apr 2025 · On-site</p>      
+              
+              <ul class="text-gray-300 space-y-2 list-disc pl-5">
+                <li>Build industry/alumni connections for student opportunities</li>
+                <li>Organize outreach and professional development events</li>
+                <li>Manage communications and events for WiCyS chapter</li>
+                <li>Foster women's cybersecurity community with industry partners</li>
+                <li>Advocate for student needs in curriculum and policy</li>
+              </ul>
+                
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Leadership</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Community Building</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Event Coordination</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Women in Tech</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Stakeholder Engagement</span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Teaching Assistant -->
+        <div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+          <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1">
+            <div class="quest-card p-6 rounded-xl">
+              <div class="flex items-center justify-end mb-4">
+                <span class="game-title text-white text-lg mr-3">TEACHING ASSISTANT</span>
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                  <i class="ri-book-open-line ri-lg"></i>
+                </div>
+              </div>
+              
+              <h3 class="text-xl text-white mb-2">University of Alberta</h3>
+              <p class="text-gray-400 mb-4">Sep 2024 - Apr 2025 (8 months) · On-site</p>
+              
+              <ul class="text-gray-300 space-y-2 list-disc pl-5">
+                <li>TA for CMPUT 174: Introduction to Foundations of Computation I</li>
+                <li>TA for CMPUT 229: Computer Organization and Architecture I</li>
+                <li>Conducted lab sessions and provided student support</li>
+                <li>Graded assignments and provided constructive feedback</li>
+                <li>Assisted students with Python programming concepts</li>
+              </ul>
+              
+              <div class="mt-4 flex flex-wrap gap-2 justify-end">
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Teaching</span>
+                <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Computer Science</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+            <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+          </div>
+          
+          <div class="md:w-1/2 md:pl-12 order-3">
+            <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+              <div class="flex items-center mb-2">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-2">
+                  <i class="ri-award-line ri-sm"></i>
+                </div>
+                <h4 class="game-title text-white">ACHIEVEMENTS</h4>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex items-center">
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                  <span class="text-gray-300 text-sm">Helped students master Python fundamentals</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                    <i class="ri-star-line ri-xs"></i>
+                  </div>
+                  <span class="text-gray-300 text-sm">Received excellent student feedback</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+
+        <!-- Intro to AI Course (Modified Layout) -->
+<div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+  <!-- Achievements on LEFT side -->
+  <div class="md:w-1/2 md:pr-12 order-2 md:order-1">
+    <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+      <div class="flex items-center mb-2">
+        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-2">
+          <i class="ri-award-line ri-sm"></i>
+        </div>
+        <h4 class="game-title text-white">KEY ACHIEVEMENTS</h4>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Completed foundational AI course by Andrew Ng</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Mastered core AI concepts and principles</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Gained practical understanding of neural networks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Timeline dot -->
+  <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+    <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+  </div>
+  
+  <!-- Main content on RIGHT side -->
+  <div class="md:w-1/2 md:pl-12 order-3">
+    <div class="quest-card p-6 rounded-xl">
+      <div class="flex items-center mb-4">
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+          <i class="ri-robot-2-line ri-lg"></i>
+        </div>
+        <span class="game-title text-white text-lg">INTRO TO AI COURSE</span>
+      </div>
+      
+      <h3 class="text-xl text-white mb-2">DeepLearning.AI (Andrew Ng)</h3>
+      <p class="text-gray-400 mb-4">Completed: 2025</p>
+      
+      <ul class="text-gray-300 space-y-2 list-disc pl-5">
+        <li>Comprehensive introduction to artificial intelligence fundamentals</li>
+        <li>Covered essential concepts in machine learning and neural networks</li>
+        <li>Practical applications across various industries</li>
+        <li>Hands-on experience with AI model evaluation</li>
+        <li>Taught by renowned AI expert Andrew Ng</li>
+      </ul>
+        
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Artificial Intelligence</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Deep Learning</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Neural Networks</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Machine Learning</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Reinforcement Learning Specialization -->
+<div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+  <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1">
+    <div class="quest-card p-6 rounded-xl">
+      <div class="flex items-center justify-end mb-4">
+        <span class="game-title text-white text-lg mr-3">REINFORCEMENT LEARNING SPECIALIZATION</span>
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+          <i class="ri-brain-fill ri-lg"></i>
+        </div>
+      </div>
+      
+      <h3 class="text-xl text-white mb-2">Advanced AI Certification</h3>
+      <p class="text-gray-400 mb-4">Completed: 2025</p>
+      
+      <ul class="text-gray-300 space-y-2 list-disc pl-5">
+        <li>Mastered building Reinforcement Learning systems and algorithms</li>
+        <li>Learned to formalize tasks as RL problems and implement solutions</li>
+        <li>Explored advanced function approximation techniques</li>
+        <li>Studied RL's role in broader machine learning contexts</li>
+        <li>Developed intelligent systems using RL methodologies</li>
+      </ul>
+      
+      <div class="mt-4 flex flex-wrap gap-2 justify-end">
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Artificial Intelligence</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Reinforcement Learning</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Machine Learning</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Intelligent Systems</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+    <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+  </div>
+  
+  <div class="md:w-1/2 md:pl-12 order-3">
+    <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+      <div class="flex items-center mb-2">
+        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-2">
+          <i class="ri-award-line ri-sm"></i>
+        </div>
+        <h4 class="game-title text-white">KEY ACHIEVEMENTS</h4>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Developed practical RL solutions for complex problems</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Mastered function approximation techniques</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Applied RL concepts to real-world AI challenges</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Intro to Machine Learning Certification -->
+<div class="flex flex-col md:flex-row items-start md:items-center mt-12">
+  <!-- Achievements on LEFT side -->
+  <div class="md:w-1/2 md:pr-12 order-2 md:order-1">
+    <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-4">
+      <div class="flex items-center mb-2">
+        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-2">
+          <i class="ri-award-line ri-sm"></i>
+        </div>
+        <h4 class="game-title text-white">KEY ACHIEVEMENTS</h4>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Completed comprehensive ML fundamentals course</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Gained hands-on experience with ML algorithms</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+            <i class="ri-star-line ri-xs"></i>
+          </div>
+          <span class="text-gray-300 text-sm">Earned certification from University of London</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Timeline dot -->
+  <div class="md:w-8 relative flex justify-center order-1 md:order-2 mb-4 md:mb-0">
+    <div class="w-8 h-8 bg-indigo-600 rounded-full border-4 border-[#050a18] z-10 glow"></div>
+  </div>
+  
+  <!-- Main content on RIGHT side -->
+  <div class="md:w-1/2 md:pl-12 order-3">
+    <div class="quest-card p-6 rounded-xl">
+      <div class="flex items-center mb-4">
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+          <i class="ri-bar-chart-fill ri-lg"></i>
+        </div>
+        <span class="game-title text-white text-lg">INTRO TO MACHINE LEARNING</span>
+      </div>
+      
+      <h3 class="text-xl text-white mb-2">University of London</h3>
+      <p class="text-gray-400 mb-4">Completed: 2025</p>
+      
+      <ul class="text-gray-300 space-y-2 list-disc pl-5">
+        <li>Comprehensive introduction to machine learning fundamentals</li>
+        <li>Covered supervised and unsupervised learning techniques</li>
+        <li>Practical experience with algorithm implementation</li>
+        <li>Explored real-world applications of ML models</li>
+        <li>Developed skills in model evaluation and optimization</li>
+      </ul>
+        
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Machine Learning</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Supervised Learning</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Unsupervised Learning</span>
+        <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Data Science</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+     <!-- Projects Section -->
+<section id="projects" class="min-h-screen py-20 relative">
+  <div class="absolute inset-0 z-0">
+    <div style="background-image: url('https://readdy.ai/api/search-image?query=futuristic%20digital%20gallery%20or%20museum%20with%20holographic%20displays%20showing%20project%20showcases%2C%20sci-fi%20environment%20with%20glowing%20pedestals%20and%20floating%20project%20displays%2C%20dark%20blue%20and%20purple%20color%20scheme%2C%20high-tech%20exhibition%20space%20with%20energy%20particles%2C%20game-like%203D%20environment&width=1920&height=1080&seq=projects-bg&orientation=landscape');" class="absolute inset-0 bg-cover bg-center opacity-20"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#050a18] via-[#050a18]/80 to-[#050a18]"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10 pt-16 max-w-6xl">
+    <div class="text-center mb-16">
+      <h2 class="game-title text-3xl md:text-5xl font-bold text-white mb-4 glow-text">ARTIFACT GALLERY</h2>
+      <p class="text-gray-400 max-w-2xl mx-auto">Discover the digital creations I've crafted throughout my journey</p>
+    </div>
+    
+    <div class="mb-8">
+      <div class="flex flex-wrap justify-center gap-4">
+        <button class="project-filter px-4 py-2 bg-indigo-900/40 text-white rounded-full border border-indigo-500/30 transition-all duration-300 active whitespace-nowrap" data-filter="all">All Projects</button>
+        <button class="project-filter px-4 py-2 bg-transparent hover:bg-indigo-900/40 text-gray-400 hover:text-white rounded-full border border-transparent hover:border-indigo-500/30 transition-all duration-300 whitespace-nowrap" data-filter="ai">AI/ML</button>
+        <button class="project-filter px-4 py-2 bg-transparent hover:bg-indigo-900/40 text-gray-400 hover:text-white rounded-full border border-transparent hover:border-indigo-500/30 transition-all duration-300 whitespace-nowrap" data-filter="mobile">Mobile Apps</button>
+        <button class="project-filter px-4 py-2 bg-transparent hover:bg-indigo-900/40 text-gray-400 hover:text-white rounded-full border border-transparent hover:border-indigo-500/30 transition-all duration-300 whitespace-nowrap" data-filter="web">Web Apps</button>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <!-- ExposHER -->
+      <div class="project-card h-96" data-category="ai mobile">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">EXPOSHER</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-pink-600 text-white">
+                <i class="ri-women-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\exposHer.jpg" alt="ExposHER App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">React Native</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Gemini API</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Aleo ZKP</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Expo Go</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">March 2025</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">EXPOSHER</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-pink-600 text-white">
+                <i class="ri-women-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">Winning hackathon project that empowers young women to break gender stereotypes in tech careers through AI-powered guidance, role models, and privacy-focused mentorship.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>AI-powered career roadmaps (Gemini 2.0 Flash API)</li>
+                <li>"Person of the Day" role model spotlights</li>
+                <li>Discussion forum for peer support</li>
+                <li>ZKP-based login using Aleo for private verification</li>
+                <li>Local event suggestions and mentorship matching</li>
+              </ul>
+              
+              <div class="flex items-center">
+                <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                  <i class="ri-trophy-line ri-xs"></i>
+                </div>
+                <span class="text-gray-300 text-sm">1st Place Overall & Privacy Track</span>
+              </div>
+            </div>
+            
+            <div class="flex justify-between">
+              <a href="#" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-button transition-all duration-300 whitespace-nowrap">
+                <i class="ri-github-line mr-1"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RideSafe -->
+      <div class="project-card h-96" data-category="ai mobile">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">RIDESAFE</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-shield-star-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\ridesafe.jpg" alt="RideSafe App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Flask</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">React Native</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">ViT Model</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">March 2025</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">RIDESAFE</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-shield-star-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">AI-driven security app using pretrained ViT Model to enhance transit safety by detecting real-time threats, alerting security, and enabling rider-reported concerns.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>Real-time threat detection using Vision Transformer</li>
+                <li>Instant security alerts and emergency contacts</li>
+                <li>User-reported incident logging</li>
+                <li>Cross-platform mobile application</li>
+              </ul>
+              
+              <div class="flex items-center">
+                <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                  <i class="ri-trophy-line ri-xs"></i>
+                </div>
+                <span class="text-gray-300 text-sm">Hackathon Winner</span>
+              </div>
+            </div>
+            
+            <div class="flex justify-between">
+              <a href="https://github.com/mikejattu/RideSafe" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-button transition-all duration-300 whitespace-nowrap">
+                <i class="ri-github-line mr-1"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Qusion -->
+      <div class="project-card h-96" data-category="mobile">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">QUSION</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-qr-code-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\qusion.jpg" alt="Qusion App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Flask</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">React Native</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Firebase</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">Feb 2025</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">QUSION</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-qr-code-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">Mobile app that combats fraudulent QR codes by scanning and analyzing URLs for security risks against VirusTotal, Google Safe Browsing, and our database.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>Real-time QR code scanning and analysis</li>
+                <li>Multi-layered security checks</li>
+                <li>Instant safety alerts</li>
+                <li>User-friendly threat reporting</li>
+              </ul>
+            </div>
+            
+            <div class="flex justify-between">
+              <a href="https://github.com/ChloeNahyunKim/HackEd2025_Fusion" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-button transition-all duration-300 whitespace-nowrap">
+                <i class="ri-github-line mr-1"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bias Mitigation -->
+      <div class="project-card h-96" data-category="ai">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">BIAS MITIGATION</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-scales-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\bias.jpg" alt="Bias Mitigation Visualization" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">PyTorch</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">VAE Model</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Computer Vision</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">Feb 2025</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">BIAS MITIGATION</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-scales-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">Facial detection model that learns latent variables to adaptively re-sample training data, reducing algorithmic bias. Inspired by research from MIT and Harvard.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>Latent space analysis for bias detection</li>
+                <li>Adaptive data re-sampling technique</li>
+                <li>Improved fairness metrics across demographics</li>
+                <li>PyTorch implementation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RNN Music Generator -->
+      <div class="project-card h-96" data-category="ai">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">MUSIC GENERATOR</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-music-2-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\music.jpg" alt="Music Generator Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">PyTorch</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">RNN</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Music Theory</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">Jan 2024</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">MUSIC GENERATOR</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-music-2-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">Character-level RNN model that generates original music compositions by predicting the next note in sequences of sheet music.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>MIDI data processing pipeline</li>
+                <li>LSTM network architecture</li>
+                <li>Music theory-informed loss functions</li>
+                <li>Multi-instrument support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Scheduler -->
+      <div class="project-card h-96" data-category="web">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">SCHEDULER</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-calendar-todo-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\scheduler.png" alt="Scheduler App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Python</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">Flask</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">JavaScript</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">HTML/CSS</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">Sep 2023</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">SCHEDULER</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-calendar-todo-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">Dynamic schedule-maker with nested, priority-based algorithm for fixed primary tasks and flexible secondary tasks.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>Priority-based task scheduling</li>
+                <li>Time-block optimization</li>
+                <li>Drag-and-drop interface</li>
+                <li>Responsive web design</li>
+              </ul>
+              
+              <div class="flex items-center">
+                <div class="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-white mr-2">
+                  <i class="ri-trophy-line ri-xs"></i>
+                </div>
+                <span class="text-gray-300 text-sm">Hackathon Winner</span>
+              </div>
+            </div>
+            
+            <div class="flex justify-between">
+              <a href="https://scheduler-0r4v-main-qnxr6lu2aq-wm.a.run.app/" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-button transition-all duration-300 whitespace-nowrap">
+                <i class="ri-eye-line mr-1"></i> Live Demo
+              </a>
+              <a href="#" class="px-4 py-2 bg-transparent hover:bg-white/10 text-white border border-indigo-500 rounded-button transition-all duration-300 whitespace-nowrap">
+                <i class="ri-github-line mr-1"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UniMates -->
+      <div class="project-card h-96" data-category="web">
+        <div class="project-card-inner h-full">
+          <div class="project-card-front h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">UNIMATES</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-team-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow relative overflow-hidden rounded-lg mb-4">
+              <img src="C:\Users\hp\Desktop\Hackathon\unimates.png" alt="Unimates App Interface" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">HTML</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">CSS</span>
+              <span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 rounded-full text-xs">JavaScript</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400 text-sm">Dec 2022</span>
+              <button class="text-primary hover:text-white transition-colors">
+                <i class="ri-arrow-right-circle-line ri-lg"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="project-card-back h-full bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="game-title text-xl text-white">UNIMATES</h3>
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white">
+                <i class="ri-team-line ri-lg"></i>
+              </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto mb-4">
+              <p class="text-gray-300 mb-4">Comprehensive guide website for international students entering Canada, covering everything from visas to cultural adaptation.</p>
+              
+              <h4 class="text-white font-semibold mb-2">Key Features:</h4>
+              <ul class="text-gray-300 space-y-1 list-disc list-inside mb-4">
+                <li>Step-by-step immigration guides</li>
+                <li>University application resources</li>
+                <li>Cultural adjustment tips</li>
+                <li>Student community forum</li>
+              </ul>
+            </div>
+            
+            <div class="flex justify-between">
+              <a href="https://unimates.netlify.app/" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-button transition-all duration-300 whitespace-nowrap">
+                <i class="ri-eye-line mr-1"></i> Live Demo
+              </a>
+            </div>
+
+    </div>
+  </div>
+</section>
+
+      <!-- Skills Section -->
+<section id="skills" class="min-h-screen py-20 relative">
+  <div class="absolute inset-0 z-0">
+    <div style="background-image: url('https://readdy.ai/api/search-image?query=futuristic%20skill%20tree%20visualization%2C%20tech%20skill%20web%20with%20glowing%20nodes%20and%20connections%2C%20dark%20blue%20and%20purple%20color%20scheme%2C%20digital%20skill%20map%20with%20energy%20flows%20between%20nodes%2C%20high-tech%20skill%20visualization%20with%20particle%20effects%2C%20game-like%20skill%20tree%20interface&width=1920&height=1080&seq=skills-bg&orientation=landscape');" class="absolute inset-0 bg-cover bg-center opacity-20"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#050a18] via-[#050a18]/80 to-[#050a18]"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10 pt-16 max-w-4xl">
+    <div class="text-center mb-16">
+      <h2 class="game-title text-3xl md:text-5xl font-bold text-white mb-4 glow-text">SKILL TREE</h2>
+      <p class="text-gray-400 max-w-2xl mx-auto">Abilities and technologies I've mastered throughout my journey</p>
+    </div>
+    
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Programming Languages Column -->
+      <div class="w-full md:w-1/3">
+        <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 max-w-3xl">
+          <h3 class="game-title text-xl text-white mb-6">PROGRAMMING LANGUAGES</h3>
+          
+          <div class="space-y-6">
+            <!-- Python -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+  <div class="flex items-center mb-3">
+    <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+      <i class="ri-python-line ri-lg"></i>
+    </div>
+    <div class="flex-1 min-w-0"> <!-- Added flex-1 and min-w-0 to prevent overflow -->
+      <h4 class="text-white font-semibold truncate">Python</h4> <!-- Added truncate for long names -->
+      <div class="flex items-center justify-between w-full"> <!-- Changed to justify-between -->
+        <div class="flex space-x-0"> <!-- Changed to space-x-1 for tighter stars -->
+          <i class="ri-star-fill text-yellow-400 text-sm"></i> <!-- Added text-sm -->
+          <i class="ri-star-fill text-yellow-400 text-sm"></i>
+          <i class="ri-star-fill text-yellow-400 text-sm"></i>
+          <i class="ri-star-fill text-yellow-400 text-sm"></i>
+          <i class="ri-star-line text-yellow-400 text-sm"></i>
+        </div>
+        <span class="text-gray-400 text-sm ml-2 whitespace-nowrap">Advanced</span> <!-- Added whitespace-nowrap -->
+      </div>
+    </div>
+  </div>
+  <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+    <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 50%"></div>
+  </div>
+</div>
+            
+            <!-- C/C++ -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-c-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">C/C++</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Intermediate</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 70%"></div>
+              </div>
+            </div>
+            
+            <!-- Java -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-java-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Java</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Intermediate</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 65%"></div>
+              </div>
+            </div>
+            
+            <!-- JavaScript -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-javascript-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">JavaScript</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 80%"></div>
+              </div>
+            </div>
+            
+            <!-- HTML/CSS -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-html5-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">HTML/CSS</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 85%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AI/ML & Frameworks Column -->
+      <div class="w-full md:w-1/3">
+        <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6">
+          <h3 class="game-title text-xl text-white mb-6">AI/ML & FRAMEWORKS</h3>
+          
+          <div class="space-y-6">
+            <!-- PyTorch -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-brain-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">PyTorch</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 85%"></div>
+              </div>
+            </div>
+            
+            <!-- TensorFlow -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-ai-generate ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">TensorFlow</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Intermediate</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 70%"></div>
+              </div>
+            </div>
+            
+            <!-- Neural Networks -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-node-tree ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Neural Networks</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 80%"></div>
+              </div>
+            </div>
+            
+            <!-- CNNs -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-focus-2-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">CNNs</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 85%"></div>
+              </div>
+            </div>
+            
+            <!-- Transformers -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-ai-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Transformers</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Intermediate</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 70%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tools & Specializations Column -->
+      <div class="w-full md:w-1/3">
+        <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6">
+          <h3 class="game-title text-xl text-white mb-6">TOOLS & SPECIALIZATIONS</h3>
+          
+          <div class="space-y-6">
+            <!-- VS Code -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-code-box-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">VS Code</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Master</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 95%"></div>
+              </div>
+            </div>
+            
+            <!-- Git/GitHub -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-git-branch-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Git/GitHub</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Master</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 90%"></div>
+              </div>
+            </div>
+            
+            <!-- Google Cloud -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-google-fill ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Google Cloud</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Intermediate</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 70%"></div>
+              </div>
+            </div>
+            
+            <!-- Mathematics -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-function-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Mathematics</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 85%"></div>
+              </div>
+            </div>
+            
+            <!-- Research Analysis -->
+            <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+              <div class="flex items-center mb-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3">
+                  <i class="ri-search-eye-line ri-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-semibold">Research Analysis</h4>
+                  <div class="flex items-center">
+                    <div class="flex mr-2">
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-fill text-yellow-400"></i>
+                      <i class="ri-star-line text-yellow-400"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm">Advanced</span>
+                  </div>
+                </div>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-600 to-primary" style="width: 85%"></div>
+              </div>
+            </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-12 bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6">
+            <h3 class="game-title text-xl text-white mb-6">SPECIAL ABILITIES</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                  <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-3d-cube-line ri-lg"></i>
+                  </div>
+                  <h4 class="text-white font-semibold">3D Web Development</h4>
+                </div>
+                <p class="text-gray-300 text-sm">Creating immersive 3D experiences for the web using WebGL, Three.js, and other technologies.</p>
+              </div>
+              
+              <!-- Research (new) -->
+                <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-search-eye-line ri-lg"></i>
+                    </div>
+                    <h4 class="text-white font-semibold">Research</h4>
+                </div>
+                <p class="text-gray-300 text-sm">Conducting thorough investigations to gather insights and drive innovation.</p>
+                </div>
+                    
+              <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                  <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-layout-line ri-lg"></i>
+                  </div>
+                  <h4 class="text-white font-semibold">UI/UX Design</h4>
+                </div>
+                <p class="text-gray-300 text-sm">Creating intuitive and visually appealing user interfaces with a focus on user experience.</p>
+              </div>
+              
+              <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                  <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-speed-line ri-lg"></i>
+                  </div>
+                  <h4 class="text-white font-semibold">Performance Optimization</h4>
+                </div>
+                <p class="text-gray-300 text-sm">Optimizing web applications for speed, efficiency, and smooth user experiences.</p>
+              </div>
+              
+              <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                  <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-responsive-line ri-lg"></i>
+                  </div>
+                  <h4 class="text-white font-semibold">Responsive Design</h4>
+                </div>
+                <p class="text-gray-300 text-sm">Creating websites and applications that work seamlessly across all devices and screen sizes.</p>
+              </div>
+              
+              <div class="skill-node p-4 bg-indigo-900/40 rounded-lg border border-indigo-500/30 hover:border-indigo-500/70 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                  <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-4">
+                    <i class="ri-team-line ri-lg"></i>
+                  </div>
+                  <h4 class="text-white font-semibold">Team Leadership</h4>
+                </div>
+                <p class="text-gray-300 text-sm">Leading development teams, mentoring junior developers, and managing project workflows.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Education Section -->
+      <section id="education" class="min-h-screen py-20 relative">
+        <div class="absolute inset-0 z-0">
+          <div style="background-image: url('https://readdy.ai/api/search-image?query=futuristic%20digital%20academy%20or%20learning%20environment%2C%20sci-fi%20university%20campus%20with%20holographic%20displays%2C%20dark%20blue%20and%20purple%20color%20scheme%2C%20high-tech%20educational%20facility%20with%20glowing%20elements%2C%20game-like%20education%20progression%20map%2C%20digital%20art%20style&width=1920&height=1080&seq=education-bg&orientation=landscape');" class="absolute inset-0 bg-cover bg-center opacity-20"></div>
+          <div class="absolute inset-0 bg-gradient-to-b from-[#050a18] via-[#050a18]/80 to-[#050a18]"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10 pt-16">
+          <div class="text-center mb-16">
+            <h2 class="game-title text-3xl md:text-5xl font-bold text-white mb-4 glow-text">KNOWLEDGE QUEST</h2>
+            <p class="text-gray-400 max-w-2xl mx-auto">Educational journeys and achievements that have shaped my skills</p>
+          </div>
+          
+          <div class="flex flex-col items-center">
+            <div class="w-full max-w-4xl">
+              <!-- Education 1 -->
+              <div class="edu-node mb-16">
+                <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 md:p-8">
+                  <div class="flex flex-col md:flex-row md:items-center mb-6">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full bg-indigo-600 text-white mb-4 md:mb-0 md:mr-6">
+                      <i class="ri-graduation-cap-line ri-2x"></i>
+                    </div>
+                    
+                    <div>
+                      <h3 class="game-title text-2xl text-white mb-2">BACHELOR OF SCIENCE IN COMPUTER SCIENCE</h3>
+                        <p class="text-xl text-gray-300">University of Alberta</p>
+                        <p class="text-gray-400">Sep 2022 - Apr 2027 (Expected)</p>
+                    </div>
+                    
+                    <div class="md:ml-auto mt-4 md:mt-0">
+                      <div class="px-4 py-2 bg-indigo-600/30 rounded-full border border-indigo-500/50">
+                        <div class="flex items-center">
+                          <i class="ri-medal-line text-yellow-400 mr-2"></i>
+                          <span class="text-white">GPA: 3.7/4.0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      
+                      
+                      <div>
+                        <h4 class="text-white font-semibold mb-3">Key Skills</h4>
+                        <ul class="text-gray-300 space-y-1 list-disc list-inside">
+                        <li>Python Programming</li>
+                        <li>Data Structures & Algorithms</li>
+                        <li>Time Management</li>
+                        <li>Software Development</li>
+                        <li>Team Collaboration</li>
+                        </ul>
+                    </div>
+                    </div>
+                    
+                    <div>
+                      <h4 class="text-white font-semibold mb-3">Achievements</h4>
+                      <div class="space-y-3">
+                        <div class="flex items-start">
+                        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500 text-white mt-0.5 mr-3 flex-shrink-0">
+                        <i class="ri-trophy-line ri-sm"></i>
+                        </div>
+                        <p class="text-gray-300">Dean's Honor List (2022-2023)</p>
+                    </div>
+                        <div class="flex items-start">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500 text-white mt-0.5 mr-3 flex-shrink-0">
+                  <i class="ri-trophy-line ri-sm"></i>
+                </div>
+                <p class="text-gray-300">Undergraduate Research Assistant</p>
+              </div>
+              <div class="flex items-start">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500 text-white mt-0.5 mr-3 flex-shrink-0">
+                  <i class="ri-trophy-line ri-sm"></i>
+                </div>
+                <p class="text-gray-300">CS Club Active Member</p>
+              </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Education 2 -->
+              <div class="edu-node mb-16">
+                <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 md:p-8">
+                  <div class="flex flex-col md:flex-row md:items-center mb-6">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full bg-indigo-600 text-white mb-4 md:mb-0 md:mr-6">
+                      <i class="ri-book-open-line ri-2x"></i>
+                    </div>
+                    
+                    <div>
+            <h3 class="game-title text-2xl text-white mb-2">HIGH SCHOOL DIPLOMA - COMPUTER SCIENCE</h3>
+            <p class="text-xl text-gray-300">Abu Dhabi Indian School (Branch-1)</p>
+            <p class="text-gray-400">Mar 2019 - Mar 2022</p>
+          </div>
+          
+          <div class="md:ml-auto mt-4 md:mt-0">
+            <div class="px-4 py-2 bg-indigo-600/30 rounded-full border border-indigo-500/50">
+              <div class="flex items-center">
+                <i class="ri-medal-line text-yellow-400 mr-2"></i>
+                <span class="text-white">Grade: 94%</span> <!-- Update with your actual grade -->
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="text-white font-semibold mb-3">Key Skills</h4>
+            <ul class="text-gray-300 space-y-1 list-disc list-inside">
+              <li>Python Programming</li>
+              <li>Problem Solving</li>
+              <li>Time Management</li>
+              <li>Academic Research</li>
+              <li>STEM Fundamentals</li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="text-white font-semibold mb-3">Achievements</h4>
+            <div class="space-y-3">
+              <div class="flex items-start">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500 text-white mt-0.5 mr-3 flex-shrink-0">
+                  <i class="ri-trophy-line ri-sm"></i>
+                </div>
+                <p class="text-gray-300">School Topper in Computer Science</p>
+              </div>
+              <div class="flex items-start">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500 text-white mt-0.5 mr-3 flex-shrink-0">
+                  <i class="ri-trophy-line ri-sm"></i>
+                </div>
+                <p class="text-gray-300">Science Fair Winner (AI Project)</p>
+              </div>
+              <div class="flex items-start">
+                <div class="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500 text-white mt-0.5 mr-3 flex-shrink-0">
+                  <i class="ri-trophy-line ri-sm"></i>
+                </div>
+                <p class="text-gray-300">Student Council Representative</p>
+              </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="min-h-screen py-20 relative">
+        <div class="absolute inset-0 z-0">
+          <div style="background-image: url('https://readdy.ai/api/search-image?query=futuristic%20communication%20terminal%20or%20contact%20interface%2C%20sci-fi%20messaging%20system%20with%20holographic%20elements%2C%20dark%20blue%20and%20purple%20color%20scheme%2C%20high-tech%20communication%20center%20with%20glowing%20elements%2C%20digital%20art%20style%2C%20game-like%20messaging%20interface&width=1920&height=1080&seq=contact-bg&orientation=landscape');" class="absolute inset-0 bg-cover bg-center opacity-20"></div>
+          <div class="absolute inset-0 bg-gradient-to-b from-[#050a18] via-[#050a18]/80 to-[#050a18]"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10 pt-16">
+          <div class="text-center mb-16">
+            <h2 class="game-title text-3xl md:text-5xl font-bold text-white mb-4 glow-text">COMMUNICATION TERMINAL</h2>
+            <p class="text-gray-400 max-w-2xl mx-auto">Send a message to establish contact or connect through other channels</p>
+          </div>
+          
+          <div class="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+            <div class="w-full md:w-1/2">
+              <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 md:p-8 h-full">
+                <h3 class="game-title text-xl text-white mb-6">SEND MESSAGE</h3>
+                
+                <form id="contact-form" class="space-y-6">
+                  <div>
+                    <label for="name" class="block text-gray-300 mb-2">Your Name</label>
+                    <input type="text" id="name" class="terminal-input w-full px-4 py-3 rounded bg-indigo-900/40 border border-indigo-500/30 focus:border-indigo-500 text-white" placeholder="Enter your name">
+                  </div>
+                  
+                  <div>
+                    <label for="email" class="block text-gray-300 mb-2">Your Email</label>
+                    <input type="email" id="email" class="terminal-input w-full px-4 py-3 rounded bg-indigo-900/40 border border-indigo-500/30 focus:border-indigo-500 text-white" placeholder="Enter your email">
+                  </div>
+                  
+                  <div>
+                    <label for="subject" class="block text-gray-300 mb-2">Subject</label>
+                    <input type="text" id="subject" class="terminal-input w-full px-4 py-3 rounded bg-indigo-900/40 border border-indigo-500/30 focus:border-indigo-500 text-white" placeholder="Enter message subject">
+                  </div>
+                  
+                  <div>
+                    <label for="message" class="block text-gray-300 mb-2">Message</label>
+                    <textarea id="message" rows="5" class="terminal-input w-full px-4 py-3 rounded bg-indigo-900/40 border border-indigo-500/30 focus:border-indigo-500 text-white resize-none" placeholder="Type your message here..."></textarea>
+                  </div>
+                  
+                  <!-- <div class="flex items-center">
+                    <input type="checkbox" id="subscribe" class="custom-checkbox">
+                    <label for="subscribe" class="text-gray-300 ml-2">Subscribe to newsletter</label>
+                  </div> -->
+                  
+                  <button type="submit" class="w-full px-6 py-3 bg-primary hover:bg-indigo-700 text-white font-medium rounded-button transition-all duration-300 glow whitespace-nowrap">
+                    <i class="ri-send-plane-line mr-2"></i> Send Message
+                  </button>
+                </form>
+              </div>
+            </div>
+            
+            <div class="w-full md:w-1/2">
+              <div class="bg-indigo-900/20 backdrop-blur-sm rounded-xl border border-indigo-500/30 p-6 md:p-8 h-full">
+                <h3 class="game-title text-xl text-white mb-6">CONNECTION PORTALS</h3>
+                
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                  <a href="https://www.linkedin.com/in/sai-vashnavi-jattu-1b5b12221/" class="flex flex-col items-center p-4 bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg border border-indigo-500/30 transition-all duration-300 group">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mb-3 group-hover:glow">
+                      <i class="ri-linkedin-fill ri-lg"></i>
+                    </div>
+                    <span class="text-white">LinkedIn</span>
+                  </a>
+                  
+                  <a href="https://github.com/Vashnavi-jattu" class="flex flex-col items-center p-4 bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg border border-indigo-500/30 transition-all duration-300 group">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mb-3 group-hover:glow">
+                      <i class="ri-github-fill ri-lg"></i>
+                    </div>
+                    <span class="text-white">GitHub</span>
+                  </a>
+                  
+                  <a href="C:\Users\hp\Desktop\University/Final_resume.pdf" download class="flex flex-col items-center p-4 bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg border border-indigo-500/30 transition-all duration-300 group">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mb-3 group-hover:glow">
+                        <i class="ri-file-download-fill ri-lg"></i> <!-- Changed from Twitter to download icon -->
+                    </div>
+                    <span class="text-white">Resume</span> <!-- Changed label -->
+                    </a>
+                  
+                  <a href="https://www.instagram.com/vash_pro/" class="flex flex-col items-center p-4 bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg border border-indigo-500/30 transition-all duration-300 group">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white mb-3 group-hover:glow">
+                      <i class="ri-instagram-fill ri-lg"></i>
+                    </div>
+                    <span class="text-white">Instagram</span>
+                  </a>
+                </div>
+                
+                <div class="bg-indigo-900/40 rounded-lg border border-indigo-500/30 p-6 mb-8">
+                  <h4 class="game-title text-lg text-white mb-4">LOCATION</h4>
+                  <div class="flex items-start mb-4">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3 mt-1">
+                      <i class="ri-map-pin-line"></i>
+                    </div>
+                    <div>
+                      <p class="text-gray-300">Edmonton, Alberta</p>
+                      <p class="text-gray-400 text-sm">Available for remote work worldwide</p>
+                    </div>
+                  </div>
+                  
+                  <h4 class="game-title text-lg text-white mb-4">EMAIL</h4>
+                  <div class="flex items-start mb-4">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-600 text-white mr-3 mt-1">
+                      <i class="ri-mail-line"></i>
+                    </div>
+                    <div>
+                      <p class="text-gray-300">vashintern@gmail.com</p>
+                      <p class="text-gray-400 text-sm">Response time: 24-48 hours</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- <div class="bg-indigo-900/40 rounded-lg border border-indigo-500/30 p-6">
+                  <h4 class="game-title text-lg text-white mb-4">AVAILABILITY STATUS</h4>
+                  <div class="flex items-center mb-4">
+                    <div class="w-3 h-3 bg-green-500 rounded-full pulse mr-2"></div>
+                    <p class="text-gray-300">Currently available for new projects</p>
+                  </div>
+                  
+                  <div class="flex items-center justify-between mt-6">
+                    <span class="text-gray-300">Notifications</span>
+                    <label class="custom-switch">
+                      <input type="checkbox" checked>
+                      <span class="switch-slider"></span>
+                    </label>
+                  </div>
+                </div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="py-8 relative bg-[#030712]/80 backdrop-blur-md border-t border-indigo-900/30">
+        <div class="container mx-auto px-4">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+              <a href="#home" class="game-title text-xl text-white glow-text">PORTFOLIO<span class="text-primary">QUEST</span></a>
+              
+            </div>
+            
+            <div class="flex space-x-6">
+              <a href="https://www.linkedin.com/in/sai-vashnavi-jattu-1b5b12221/" class="text-gray-400 hover:text-white transition-colors">
+                <i class="ri-linkedin-fill ri-lg"></i>
+              </a>
+              <a href="https://github.com/Vashnavi-jattu" class="text-gray-400 hover:text-white transition-colors">
+                <i class="ri-github-fill ri-lg"></i>
+              </a>
+            <a href="C:\Users\hp\Desktop\University/Final_resume.pdf" download class="text-gray-400 hover:text-white transition-colors">
+                    <i class="ri-file-download-fill ri-lg"></i>
+              </a>
+              <a href="https://www.instagram.com/vash_pro/" class="text-gray-400 hover:text-white transition-colors">
+                <i class="ri-instagram-fill ri-lg"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Enhanced JavaScript with error handling -->
+    <script>
+      // Add js-enabled class to body when JavaScript is available
+      document.body.classList.add("js-enabled");
+
+      // Safe query selector function
+      function safeQuerySelector(selector) {
+        try {
+          const element = document.querySelector(selector);
+          if (!element) {
+            console.warn(`Element not found: ${selector}`);
+            return null;
+          }
+          return element;
+        } catch (error) {
+          console.error(`Error querying selector ${selector}:`, error);
+          return null;
+        }
+      }
+
+      // Safe event listener function
+      function safeAddEventListener(element, event, handler) {
+        try {
+          if (element && typeof handler === "function") {
+            element.addEventListener(event, handler);
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error(
+            `Error adding event listener to ${element} for ${event}:`,
+            error
+          );
+          return false;
+        }
+      }
+
+      // Loading animation with error handling
+      function initLoadingAnimation() {
+        const loadingScreen = safeQuerySelector("#loading-screen");
+        const loadingProgress = safeQuerySelector("#loading-progress");
+
+        if (!loadingScreen || !loadingProgress) {
+          console.warn(
+            "Loading elements not found - skipping loading animation"
+          );
+          return;
+        }
+
+        let progress = 0;
+
+        const interval = setInterval(() => {
+          try {
+            progress += Math.floor(Math.random() * 10) + 1;
+            if (progress > 100) progress = 100;
+
+            if (loadingProgress) {
+              loadingProgress.textContent = progress;
+            }
+
+            if (progress === 100) {
+              clearInterval(interval);
+              setTimeout(() => {
+                if (loadingScreen) {
+                  loadingScreen.style.opacity = "0";
+                  setTimeout(() => {
+                    loadingScreen.style.display = "none";
+                  }, 1000);
+                }
+              }, 500);
+            }
+          } catch (error) {
+            console.error("Error in loading animation:", error);
+            clearInterval(interval);
+            if (loadingScreen) {
+              loadingScreen.style.display = "none";
+            }
+          }
+        }, 200);
+      }
+
+      // Mobile menu toggle with error handling
+      function initMobileMenu() {
+        const mobileMenuButton = safeQuerySelector("#mobile-menu-button");
+        const mobileMenu = safeQuerySelector("#mobile-menu");
+
+        if (!mobileMenuButton || !mobileMenu) {
+          console.warn(
+            "Mobile menu elements not found - skipping mobile menu initialization"
+          );
+          return;
+        }
+
+        const toggleMenu = () => {
+          try {
+            if (mobileMenu.classList.contains("translate-x-full")) {
+              mobileMenu.classList.remove("translate-x-full");
+              mobileMenu.classList.add("translate-x-0");
+              if (mobileMenuButton) {
+                mobileMenuButton.innerHTML =
+                  '<i class="ri-close-line ri-lg"></i>';
+              }
+            } else {
+              mobileMenu.classList.remove("translate-x-0");
+              mobileMenu.classList.add("translate-x-full");
+              if (mobileMenuButton) {
+                mobileMenuButton.innerHTML =
+                  '<i class="ri-menu-line ri-lg"></i>';
+              }
+            }
+          } catch (error) {
+            console.error("Error toggling mobile menu:", error);
+          }
+        };
+
+        safeAddEventListener(mobileMenuButton, "click", toggleMenu);
+
+        // Close mobile menu when clicking on a link
+        const mobileMenuLinks = mobileMenu.querySelectorAll("a");
+        mobileMenuLinks.forEach((link) => {
+          safeAddEventListener(link, "click", () => {
+            try {
+              mobileMenu.classList.remove("translate-x-0");
+              mobileMenu.classList.add("translate-x-full");
+              if (mobileMenuButton) {
+                mobileMenuButton.innerHTML =
+                  '<i class="ri-menu-line ri-lg"></i>';
+              }
+            } catch (error) {
+              console.error("Error closing mobile menu:", error);
+            }
+          });
+        });
+      }
+
+      // Particles animation with error handling
+      function initParticlesAnimation() {
+        const particlesContainer = safeQuerySelector("#particles");
+
+        if (!particlesContainer) {
+          console.warn(
+            "Particles container not found - skipping particles animation"
+          );
+          return;
+        }
+
+        try {
+          // Create particles
+          for (let i = 0; i < 50; i++) {
+            const particle = document.createElement("div");
+            particle.classList.add("particle");
+
+            // Random position
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+
+            // Random size
+            const size = Math.random() * 3 + 1;
+
+            // Random animation duration and delay
+            const duration = Math.random() * 20 + 10;
+            const delay = Math.random() * 5;
+
+            particle.style.left = `${posX}%`;
+            particle.style.top = `${posY}%`;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.opacity = Math.random() * 0.5 + 0.3;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+
+            particlesContainer.appendChild(particle);
+          }
+        } catch (error) {
+          console.error("Error creating particles:", error);
+        }
+      }
+
+      // Project filter with error handling
+      function initProjectFilter() {
+        const filterButtons = document.querySelectorAll(".project-filter");
+        const projectCards = document.querySelectorAll(".project-card");
+
+        if (filterButtons.length === 0 || projectCards.length === 0) {
+          console.warn(
+            "Project filter elements not found - skipping project filter initialization"
+          );
+          return;
+        }
+
+        const filterProjects = (filter) => {
+          try {
+            projectCards.forEach((card) => {
+              const category = card.getAttribute("data-category");
+
+              if (filter === "all" || category === filter) {
+                card.style.display = "block";
+              } else {
+                card.style.display = "none";
+              }
+            });
+          } catch (error) {
+            console.error("Error filtering projects:", error);
+          }
+        };
+
+        filterButtons.forEach((button) => {
+          safeAddEventListener(button, "click", function () {
+            try {
+              const filter = this.getAttribute("data-filter");
+
+              // Update active button
+              filterButtons.forEach((btn) => {
+                btn.classList.remove(
+                  "bg-indigo-900/40",
+                  "text-white",
+                  "border-indigo-500/30"
+                );
+                btn.classList.add(
+                  "bg-transparent",
+                  "text-gray-400",
+                  "border-transparent"
+                );
+              });
+
+              this.classList.remove(
+                "bg-transparent",
+                "text-gray-400",
+                "border-transparent"
+              );
+              this.classList.add(
+                "bg-indigo-900/40",
+                "text-white",
+                "border-indigo-500/30"
+              );
+
+              // Filter projects
+              filterProjects(filter);
+            } catch (error) {
+              console.error("Error handling project filter click:", error);
+            }
+          });
+        });
+      }
+
+      // Form validation with error handling
+      function initFormValidation() {
+        const contactForm = safeQuerySelector("#contact-form");
+
+        if (!contactForm) {
+          console.warn(
+            "Contact form not found - skipping form validation initialization"
+          );
+          return;
+        }
+
+        const validateForm = (e) => {
+          try {
+            e.preventDefault();
+
+            // Simple validation
+            const name = document.getElementById("name")?.value;
+            const email = document.getElementById("email")?.value;
+            const subject = document.getElementById("subject")?.value;
+            const message = document.getElementById("message")?.value;
+
+            if (!name || !email || !subject || !message) {
+              alert("Please fill in all fields");
+              return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+              alert("Please enter a valid email address");
+              return;
+            }
+
+            // Simulate form submission
+            contactForm.reset();
+            alert("Message sent successfully! I will get back to you soon.");
+          } catch (error) {
+            console.error("Error validating form:", error);
+            alert(
+              "An error occurred while submitting the form. Please try again."
+            );
+          }
+        };
+
+        safeAddEventListener(contactForm, "submit", validateForm);
+      }
+
+      // Smooth scroll with error handling
+      function initSmoothScroll() {
+        const links = document.querySelectorAll('a[href^="#"]');
+
+        if (links.length === 0) {
+          console.warn(
+            "No anchor links found - skipping smooth scroll initialization"
+          );
+          return;
+        }
+
+        const scrollToTarget = function(e) {
+          try {
+            e.preventDefault();
+
+            const targetId = this.getAttribute("href");
+            if (!targetId) return;
+
+            const targetElement = document.querySelector(targetId);
+            if (!targetElement) return;
+
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: "smooth",
+            });
+          } catch (error) {
+            console.error("Error scrolling to target:", error);
+            // Fallback to default behavior
+            return true;
+          }
+        };
+
+        links.forEach((link) => {
+          safeAddEventListener(link, "click", scrollToTarget);
+        });
+      }
+
+      // Initialize all functionality when DOM is loaded
+      document.addEventListener("DOMContentLoaded", function () {
+        try {
+          initLoadingAnimation();
+          initMobileMenu();
+          initParticlesAnimation();
+          initProjectFilter();
+          initFormValidation();
+          initSmoothScroll();
+
+          // Show content now that JavaScript has initialized
+          const mainContent = safeQuerySelector(".js-dependent");
+          if (mainContent) {
+            mainContent.style.opacity = "1";
+          }
+        } catch (error) {
+          console.error("Error initializing portfolio:", error);
+
+          // Ensure loading screen is hidden even if initialization fails
+          const loadingScreen = safeQuerySelector("#loading-screen");
+          if (loadingScreen) {
+            loadingScreen.style.display = "none";
+          }
+
+          // Ensure main content is visible
+          const mainContent = safeQuerySelector(".js-dependent");
+          if (mainContent) {
+            mainContent.style.opacity = "1";
+          }
+        }
+      });
+
+      // Fallback for when DOMContentLoaded doesn't fire
+      if (document.readyState !== "loading") {
+        document.dispatchEvent(new Event("DOMContentLoaded"));
+      } else {
+        document.addEventListener("DOMContentLoaded", function () {});
+      }
+    </script>
+  </body>
+</html>
